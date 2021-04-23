@@ -16,5 +16,5 @@ def about():
 # Dynamic route
 # {id} will be come from url
 @app.get("/blog/{id}")
-def blog(id):
-    return {"data": {"id": id, "title": "Blog id " + id}}
+def blog(id: int):
+    return {"data": {"id": id, "title": "Blog id " + str(id)}}
