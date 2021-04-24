@@ -1,6 +1,14 @@
 from fastapi import FastAPI
 
+from enum import Enum
+
 app = FastAPI()
+
+
+class LangName(str, Enum):
+    php = "php"
+    python = "python"
+    js = "js"
 
 
 @app.get("/")
@@ -26,3 +34,19 @@ def blog():
 @app.get("/blog/{id}")
 def blog(id: int):
     return {"data": {"id": id, "title": "Blog id " + str(id)}}
+
+
+@app.get("/lang/{lang_name}")
+async def get_model(lang_name: LangName):
+    print(lang_name)  # LangName.php
+    print(lang_name.value)  # php
+
+    # We can evaluate path parameter from Enum class
+    if lang_name == LangName.php:
+        return {"lang_name": lang_name, "message": f"{lang_name} is a wonderful backend language!"}
+
+    # Or we can evaluate the value directly
+    if lang_name.value == "python":
+        return {"lang_name": lang_name, "message": "python is the most powerful language for ML!"}
+
+    return {"lang_name": lang_name, "message": "js is has many more uses!"}
