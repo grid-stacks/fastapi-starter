@@ -52,3 +52,9 @@ async def get_model(lang_name: LangName):
         return {"lang_name": lang_name, "message": "python is the most powerful language for ML!"}
 
     return {"lang_name": lang_name, "message": "js is has many more uses!"}
+
+
+# :path, tells it that the parameter should match any path
+@app.get("/files/{file_path:path}")
+async def read_file(file_path: str):
+    return {"data": {"file_path": file_path}}
