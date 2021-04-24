@@ -36,16 +36,18 @@ def blog(id: int):
     return {"data": {"id": id, "title": "Blog id " + str(id)}}
 
 
+# We can use enum as predefined values for path params
 @app.get("/lang/{lang_name}")
 async def get_model(lang_name: LangName):
     print(lang_name)  # LangName.php
     print(lang_name.value)  # php
 
-    # We can evaluate path parameter from Enum class
+    # We can evaluate path parameter from enum class
+    # i.e., we can compare it with the enumeration member in our created enum LangName
     if lang_name == LangName.php:
         return {"lang_name": lang_name, "message": f"{lang_name} is a wonderful backend language!"}
 
-    # Or we can evaluate the value directly
+    # Or we can evaluate the actual value directly
     if lang_name.value == "python":
         return {"lang_name": lang_name, "message": "python is the most powerful language for ML!"}
 
