@@ -7,7 +7,7 @@ router = APIRouter(
 )
 
 
-# If two routes may have same endpoint like below,
+# If two routes may have same endpoint with path paramters like below,
 # the static one must be executed earlier
 # Otherwise it will show error
 @router.get("/edit")
@@ -15,7 +15,7 @@ def blog():
     return {"data": {"title": "This must be executed before path parameter"}}
 
 
-# Dynamic route
+# Path parameter
 # {id} will be come from url
 @router.get("/{id}")
 def blog(id: int):
