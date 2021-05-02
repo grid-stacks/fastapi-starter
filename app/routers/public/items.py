@@ -1,5 +1,5 @@
-from fastapi import APIRouter
-from typing import Optional
+from fastapi import APIRouter, Query
+from typing import Optional, List
 from pydantic import BaseModel
 
 
@@ -90,3 +90,26 @@ async def create_item_with_id(item_id: int, item: Item, q: Optional[str] = None)
         item_dict.update({"q": q})
 
     return {"data": item_dict}
+
+
+# Query parameter with validation
+@router.get("/query/test")
+async def query_item(
+    # query with validation
+    material: Optional[str] = Query(None, max_length=10, min_length=2),
+    # query with default value
+    length: Optional[int] = Query(10),
+    # query is required
+    width: Optional[int] = Query(...),
+    # query with multiple values, e.g, /items/?q=foo&q=bar
+    color: Optional[List[str]] = Query(None),
+    # query with details
+    description: Optional[str] = Query(
+        None,
+        title="Query description",
+        description="Query string for description",
+        min_length=3,
+        alias="summary"  # summary will be passed instead of description
+    ),
+):
+    return {"data": {"length": length, "width": width, "material": material, "color": color, "description": description}}
