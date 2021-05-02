@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Path
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -79,7 +79,15 @@ async def create_item(item: Item):
 #     If it is of a singular type (like int, float, str, bool, etc) it will be interpreted as a query parameter.
 #     If it is declared to be of the type of a Pydantic model, it will be interpreted as a request body.
 @router.post("/{item_id}")
-async def create_item_with_id(item_id: int, item: Item, q: Optional[str] = None):
+async def create_item_with_id(
+    # Usually mixed parameter without value like item here will show error
+    # Starting with * as first parameter, python will detect next parameters as kwargs
+    *,
+    # Path parameter can be validated with gt, ge, lt, le
+    item_id: int = Path(..., title="The ID of the item to get", ge=0, le=1000),
+    item: Item,
+    q: Optional[str] = None
+):
     item_dict = {"item_id": item_id, **item.dict()}
 
     if item.tax:
