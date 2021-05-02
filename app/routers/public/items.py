@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Path
+from fastapi import APIRouter, Query, Path, Body
 from typing import Optional, List
 from pydantic import BaseModel
 
@@ -22,6 +22,16 @@ class Item(BaseModel):
     description: Optional[str] = None
     price: float
     tax: Optional[float] = None
+
+
+class User(BaseModel):
+    username: str
+    full_name: Optional[str] = None
+
+
+class Category(BaseModel):
+    name: str
+    slug: str
 
 
 # Function parameters that are not path parameters, are "query" parameters.
@@ -86,9 +96,14 @@ async def create_item_with_id(
     # Path parameter can be validated with gt, ge, lt, le
     item_id: int = Path(..., title="The ID of the item to get", ge=0, le=1000),
     item: Item,
+    # Multiple body parameter can be used and also any body parameter can be optional
+    user: Optional[User] = None,
+    # Singular values in body can be used and also with validation
+    importance: int = Body(..., gt=0),
     q: Optional[str] = None
 ):
-    item_dict = {"item_id": item_id, **item.dict()}
+    item_dict = {"item_id": item_id, **item.dict(), "user": user,
+                 "importance": importance}
 
     if item.tax:
         price_with_tax = item.price + item.tax
@@ -98,6 +113,13 @@ async def create_item_with_id(
         item_dict.update({"q": q})
 
     return {"data": item_dict}
+
+
+# If we have a single item body parameter,  FastAPI will then expect its body directly
+# With body parameter embed, we expect a JSON with a key item category
+@router.get("/categories")
+async def get_categories(category: Category = Body(..., embed=True)):
+    return {"data": {"category": category}}
 
 
 # Query parameter with validation
