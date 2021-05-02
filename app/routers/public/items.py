@@ -1,5 +1,7 @@
 from fastapi import APIRouter
 from typing import Optional
+from pydantic import BaseModel
+
 
 router = APIRouter(
     prefix="/items",
@@ -12,6 +14,14 @@ items_db = [
     {"item_name": "Bar"},
     {"item_name": "Baz"}
 ]
+
+
+# Pydantic model for data validation
+class Item(BaseModel):
+    name: str
+    description: Optional[str] = None
+    price: float
+    tax: Optional[float] = None
 
 
 # Function parameters that are not path parameters, are "query" parameters.
@@ -47,4 +57,36 @@ async def read_item(item_id: str, q: Optional[str] = None, short: bool = False):
         item.update(
             {"description": "This is an amazing item that has a long description"}
         )
-    return item
+    return {"data": item}
+
+
+# We can send data from a client/browser to our API as a request body.
+# Request body is declared as parameter with type of data model.
+@router.post("/")
+async def create_item(item: Item):
+    item_dict = item.dict()
+
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+
+    return {"data": item_dict}
+
+
+# Request body + path + query parameters
+# The function parameters will be recognized as follows:
+#     If it is declared in the path, it will be used as a path parameter.
+#     If it is of a singular type (like int, float, str, bool, etc) it will be interpreted as a query parameter.
+#     If it is declared to be of the type of a Pydantic model, it will be interpreted as a request body.
+@router.post("/{item_id}")
+async def create_item_with_id(item_id: int, item: Item, q: Optional[str] = None):
+    item_dict = {"item_id": item_id, **item.dict()}
+
+    if item.tax:
+        price_with_tax = item.price + item.tax
+        item_dict.update({"price_with_tax": price_with_tax})
+
+    if q:
+        item_dict.update({"q": q})
+
+    return {"data": item_dict}
